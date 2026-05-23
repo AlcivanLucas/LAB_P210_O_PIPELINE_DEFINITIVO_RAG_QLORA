@@ -28,3 +28,12 @@ Simular o ambiente de produção da HealthTech, onde um LLM precisa **ler um con
 - `lab10_pipeline.ipynb` — notebook Colab com os 4 passos e benchmark
 - `README.md` — este parecer + métricas
 - `benchmark.png` — gráfico de tempo e VRAM (gerado pela última célula)
+
+## Tabela de Benchmarks
+
+> Resultados medidos no Google Colab (Tesla T4, 14.56 GB VRAM), contexto RAG simulado de **4.339 tokens**, geração de **100 novos tokens**.
+
+| Configuração | Tempo (s) | tok/s | Pico VRAM (MB) |
+|---|---:|---:|---:|
+| VRAM ocupada apenas pelo modelo 4-bit (Passo 1) | — | — | **746,7** |
+| Baseline (eager, **SEM KV cache**) | **OOM** | — | **6.915,4** |
