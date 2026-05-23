@@ -37,3 +37,4 @@ Simular o ambiente de produção da HealthTech, onde um LLM precisa **ler um con
 |---|---:|---:|---:|
 | VRAM ocupada apenas pelo modelo 4-bit (Passo 1) | — | — | **746,7** |
 | Baseline (eager, **SEM KV cache**) | **OOM** | — | **6.915,4** |
+| Eager + **KV cache** | **10,57** | **9,46** | **6.735,6** |
