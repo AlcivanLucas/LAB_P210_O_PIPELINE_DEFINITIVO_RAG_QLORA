@@ -45,3 +45,9 @@ Simular o ambiente de produção da HealthTech, onde um LLM precisa **ler um con
 **Redução no pico de VRAM:** **8,8%** (de 6.915 MB → 6.306 MB)
 
 ---
+
+## Passo 5 — Parecer Técnico
+
+### Parte A — Como QLoRA + KV Cache + FlashAttention "salvaram" o Transformer
+
+O baseline ingenuamente roda o Transformer tradicional em três frentes hostis ao mesmo tempo: (i) pesos em FP16 pesando ~2,2 GB, (ii) recálculo completo de Q, K e V dos ~12k tokens de contexto a cada novo token gerado — o que faz o custo *prefill* explodir como **O(n²)** em memória, e (iii) a própria matriz de scores de atenção (`n×n`) sendo materializada na HBM. O resultado é a curva clássica do OOM: o pico de VRAM dispara já no primeiro `forward`. **QLoRA** corta a primeira frente quantizando os pesos para 4-bit NF4 (footprint ~5× menor), liberando orçamento para o cache de ativações. O **KV Cache** ataca a segunda frente: como K e V dos tokens passados não mudam, basta armazená-los e, a cada nova posição, calcular apenas a Q nova — a geração deixa de ser O(n²) por passo e vira O(n). Por fim, o **FlashAttention-2** (ou o SDPA memory-efficient em GPUs Turing como a T4) ataca a terceira frente: usa *tiling* para computar a atenção em blocos dentro da **SRAM** da GPU, sem nunca escrever a matriz `n×n` completa na HBM, eliminando o termo quadrático de **memória**. As três técnicas são ortogonais e somam-se: QLoRA comprime os pesos, KV Cache amortiza o histórico, FlashAttention/SDPA achata o pico de attention — e juntas devolvem o pipeline ao orçamento de uma única GPU.
