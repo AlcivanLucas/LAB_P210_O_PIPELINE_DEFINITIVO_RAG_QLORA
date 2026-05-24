@@ -31,10 +31,17 @@ Simular o ambiente de produção da HealthTech, onde um LLM precisa **ler um con
 
 ## Tabela de Benchmarks
 
-> Resultados medidos no Google Colab (Tesla T4, 14.56 GB VRAM), contexto RAG simulado de **4.339 tokens**, geração de **100 novos tokens**.
+> Resultados medidos no Google Colab (Tesla T4, 14.56 GB VRAM), contexto RAG simulado de **4.339 tokens**, geração de **100 novos tokens**, attention otimizada: **sdpa**.
 
 | Configuração | Tempo (s) | tok/s | Pico VRAM (MB) |
 |---|---:|---:|---:|
 | VRAM ocupada apenas pelo modelo 4-bit (Passo 1) | — | — | **746,7** |
-| Baseline (eager, **SEM KV cache**) | **OOM** | — | **6.915,4** |
+| Baseline (eager, **SEM KV cache**) | **445,33** | **0,22** | **6.915,4** |
 | Eager + **KV cache** | **10,57** | **9,46** | **6.735,6** |
+| **SDPA + KV cache** (otimizado, T4) | **10,59** | **9,44** | **6.306,2** |
+| FlashAttention-2 + KV cache (Ampere+ apenas) | — | — | — |
+
+**Speedup observado (baseline → otimizado):** **42,05×** mais rápido  
+**Redução no pico de VRAM:** **8,8%** (de 6.915 MB → 6.306 MB)
+
+---
