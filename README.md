@@ -55,3 +55,13 @@ O baseline ingenuamente roda o Transformer tradicional em três frentes hostis a
 ### Parte B — Por que mesmo o FlashAttention falharia em 2 milhões de tokens
 
 O FlashAttention é uma vitória de **constantes**, não de **complexidade assintótica**: ele continua sendo um algoritmo de atenção cuja computação é **O(n²)** em FLOPs (todo token ainda precisa, em princípio, comparar-se a todos os outros). O que ele economiza é a *materialização* da matriz na HBM, derrubando o custo de **memória** de O(n²) para O(n). Para n = 15.000 isso resolve o problema; para **n = 2.000.000** o problema volta por dois caminhos: primeiro, o KV cache cresce linearmente com n e, mesmo em 4-bit, 2M de tokens × várias dezenas de camadas × dimensão de cabeça produzem dezenas a centenas de gigabytes de cache — impossível em qualquer GPU única; segundo, mesmo se a memória coubesse, o tempo de *prefill* O(n²) em FLOPs tornaria a latência da primeira resposta proibitiva (horas). A indústria, por isso, está migrando para **State Space Models** como **Mamba**, que substituem a self-attention por uma recorrência seletiva com estado oculto de tamanho fixo: o custo de memória por token gerado é **O(1)** (o estado não cresce com o contexto) e o custo computacional escala em **O(n)** linear, com possibilidade de scan paralelo no treino. É a mesma virada conceitual da era pré-Transformer (RNN linear) com seleção dependente do input, que permite ler *streams* praticamente ilimitados sem que a memória da GPU vire o gargalo final do sistema.
+
+---
+
+## Decisões e observações de engenharia
+
+- **Modelo escolhido:** `TinyLlama/TinyLlama-1.1B-Chat-v1.0` — cabe folgado em T4 quantizado e tem `attn_implementation` configurável (Llama arch).
+- **Contexto RAG:** 4.339 tokens reais medidos (enunciado pede 10–15k; reduzido para T4 de 14.56 GB que entra em OOM com contextos maiores em eager sem cache — o notebook comenta isso explicitamente). O objetivo do benchmark é demonstrar a diferença de comportamento entre as configurações, não atingir exatamente N tokens.
+- **`do_sample=False`** no `generate` para tornar o benchmark determinístico.
+- **`bnb_4bit_quant_type="nf4"` + double quant** seguem a receita oficial do QLoRA.
+- **Fallback SDPA:** detectamos a compute capability via `torch.cuda.get_device_capability` e só pedimos `flash_attention_2` se SM ≥ 8.0. Em T4 cai para `sdpa`, que internamente usa o kernel *memory-efficient attention* (Rabe & Staats / xFormers) — mesmo princípio de não materializar a matriz `n×n`.
