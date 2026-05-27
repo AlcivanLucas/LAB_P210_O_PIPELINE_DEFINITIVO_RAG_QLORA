@@ -2,8 +2,6 @@
 
 # Laboratório 10 — Pipeline Definitivo: RAG + QLoRA + Otimização de Inferência na GPU
 
-Disciplina: Arquitetura de IA / Transformers em produção
-Autor: **alcivan**
 
 ## Objetivo
 
@@ -18,7 +16,10 @@ Simular o ambiente de produção da HealthTech, onde um LLM precisa **ler um con
 ## Como executar
 
 ### Google Colab (T4)
-1. Upload do `lab10_pipeline.ipynb`.
+
+[![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/14xRcu1i6OV_XEozTI0sxPIZrn_nGOS4q?usp=sharing)
+
+1. Clique no badge acima ou acesse: https://colab.research.google.com/drive/14xRcu1i6OV_XEozTI0sxPIZrn_nGOS4q?usp=sharing
 2. `Runtime → Change runtime type → T4 GPU`.
 3. `Runtime → Run all`.
 
@@ -58,6 +59,8 @@ jupyter notebook lab10_pipeline.ipynb
 
 **Speedup observado (baseline → otimizado):** **42,05×** mais rápido  
 **Redução no pico de VRAM:** **8,8%** (de 6.915 MB → 6.306 MB)
+
+![Gráfico de Benchmark](benchmark.png)
 
 ---
 
