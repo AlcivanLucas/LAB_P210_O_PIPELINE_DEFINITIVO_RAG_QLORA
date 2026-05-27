@@ -24,14 +24,29 @@ Simular o ambiente de produção da HealthTech, onde um LLM precisa **ler um con
 
 > ⚠️ **A T4 do Colab grátis é Turing (SM 7.5) e NÃO suporta `flash_attention_2`** — esse kernel exige Ampere+ (A100, L4, RTX 30/40). O notebook detecta isso automaticamente e faz **fallback para `attn_implementation="sdpa"`** (Scaled-Dot-Product-Attention do PyTorch com kernel memory-efficient). Conceitualmente equivalente para fins do lab: ambos evitam materializar a matriz `n×n` completa na HBM.
 
+### Local (script Python)
+```bash
+pip install -U "transformers>=4.44" "accelerate>=0.33" "bitsandbytes>=0.43" \
+               sentencepiece protobuf matplotlib
+python lab10_pipeline.py
+```
+
+### Local (notebook)
+```bash
+pip install -U "transformers>=4.44" "accelerate>=0.33" "bitsandbytes>=0.43" \
+               sentencepiece protobuf matplotlib jupyter
+jupyter notebook lab10_pipeline.ipynb
+```
+
 ## Arquivos
 - `lab10_pipeline.ipynb` — notebook Colab com os 4 passos e benchmark
+- `lab10_pipeline.py` — script Python equivalente para execução local
 - `README.md` — este parecer + métricas
 - `benchmark.png` — gráfico de tempo e VRAM (gerado pela última célula)
 
 ## Tabela de Benchmarks
 
-> Resultados medidos no Google Colab (Tesla T4, 14.56 GB VRAM), contexto RAG simulado de **4.339 tokens**, geração de **100 novos tokens**, attention otimizada: **sdpa**.
+> Resultados reais medidos no Google Colab (Tesla T4, 14.56 GB VRAM), contexto RAG simulado de **4.339 tokens**, geração de **100 novos tokens**, attention otimizada: **sdpa**.
 
 | Configuração | Tempo (s) | tok/s | Pico VRAM (MB) |
 |---|---:|---:|---:|
